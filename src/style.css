@@ -1,0 +1,275 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body,
+html {
+  height: 100%;
+  font-size: 100%;
+  overflow: hidden;
+}
+.inputdurat {
+  width: 80px;
+}
+.inputdate {
+  width: 150px;
+}
+.inputnote {
+  width: 100%;
+}
+.inputdate2 {
+  width: 85px;
+  background-color: #7272724b;
+  border: 1px solid black;
+  padding: 2px;
+}
+.inputdate2::-webkit-inner-spin-button,
+.inputdate2::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+.backgroundLogin {
+  background: url("https://img.freepik.com/free-vector/abstract-gray-white-geometric-hexagons-background_78474-287.jpg?size=626&ext=jpg");
+  background-repeat: no-repeat;
+  min-height: 100%;
+  width: 100%;
+  height: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-size: cover;
+}
+
+.LoginBox {
+  position: absolute;
+  max-width: 300px;
+  width: 100%;
+  background: #fff;
+  border-radius: 4px;
+  padding: 1.187rem 1.875rem 2.062rem 1.875rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.LoginBox .mercury-logologin {
+  /*solo per AWS*/
+  background: url("./logokey.png");
+  text-align: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  /*filter: invert(100%);*/
+  display: block;
+  width: 230px;
+  height: 90px;
+  margin: 0.875rem auto 0;
+}
+
+.LoginBox .UserLogin {
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: #575674;
+  line-height: 1.062rem;
+}
+.LoginBox .UserLogin .control-Element {
+  display: block;
+  margin-top: 0.875rem;
+  margin-bottom: 0.437rem;
+}
+
+.LoginBox .UserLogin .login-control {
+  background: #eeeef1;
+  border-radius: 4px;
+  border: 0 none;
+  padding: 0.75rem 0.625rem;
+  width: 100%;
+  color: #575674;
+  font-size: 0.875rem;
+}
+.LoginBox .UserLogin .login-control :focus {
+  outline: none;
+  border: 0 none;
+}
+
+.LoginBox .submitLogin {
+  display: block;
+  margin-top: 1.475rem;
+  width: 100%;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.25rem;
+  border-radius: 4px;
+  border: 0 none;
+  background: #575674;
+  color: #ffffff;
+  padding: 10px 0;
+}
+.LoginBox .submitLogin :focus {
+  outline: none;
+  border: 0 none;
+}
+.LoginBox .Login-forgetRegister {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  line-height: 17px;
+  color: #575674;
+  padding-left: 4px;
+}
+.LoginBox .Login-forgetRegister .registerUser {
+  color: #575674;
+}
+.LoginBox .Login-forgetRegister .registerUser :hover {
+  color: #575674;
+  text-decoration: none;
+}
+.LoginBox .Login-forgetRegister .forgetPassword {
+  color: #575674;
+}
+.LoginBox .Login-forgetRegister .forgetPassword :hover {
+  color: #575674;
+  text-decoration: none;
+}
+
+.popup-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 99;
+}
+.popup {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  position: fixed;
+  z-index: 999;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border-radius: 14px;
+  padding: 20px 30px;
+  max-width: 1160px;
+  width: calc(100% - 20px);
+  max-width: 80%;
+  border-radius: 6px;
+  min-height: 300px;
+}
+.close-popup {
+  display: block;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+}
+.close-popup:after,
+.close-popup:before {
+  content: "";
+  position: absolute;
+  background-color: #1b48c0;
+  width: 2px;
+  height: 20px;
+  top: 0;
+}
+.close-popup:after {
+  transform: rotate(45deg);
+}
+.close-popup:before {
+  transform: rotate(-45deg);
+}
+.editfield {
+  width: 100px;
+  background-color: #4f7fd8;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  font-size: 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.mercuryCopyright {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding-bottom: 2px;
+}
+.mercuryCopyLeft {
+  float: left;
+}
+.mercuryCopyLeft a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 0.75rem;
+  padding-right: 10px;
+  float: left;
+  line-height: 18px;
+  text-transform: uppercase;
+}
+
+.mercuryCopyRight {
+  float: right;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 18px;
+}
+
+.mercuryCopyRight a {
+  text-decoration: none;
+  color: #ff8833;
+}
+
+.clear {
+  clear: both;
+}
+@media only screen and (max-width: 800px) {
+  html {
+    font-size: 80%;
+  }
+}
+@media only screen and (max-width: 480px) {
+  .mercuryCopyLeft {
+    float: none;
+    text-align: center;
+  }
+  .mercuryCopyLeft a {
+    float: none;
+  }
+
+  .mercuryCopyRight {
+    float: none;
+    text-align: center;
+    margin-top: 5px;
+  }
+}
+.MuiAppBar-colorPrimary {
+  color: #fff;
+  background-color: #3131318c !important;
+}
+.dx-datagrid {
+  background-color: #fff0;
+  /*margin-top: -40px;*/
+}
+.dx-toolbar {
+  background-color: #fff0;
+}
+.dx-datagrid-headers {
+  background-color: #fff;
+}
+.dx-datagrid-rowsview {
+  background-color: #fff;
+}
+.dx-toolbar .dx-toolbar-items-container {
+  height: 50px !important;
+}
