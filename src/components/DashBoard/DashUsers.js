@@ -158,8 +158,16 @@ class Dashboard extends React.Component {
             >
               Gestione Utenti
             </Typography>
-            <IconButton color="inherit">
-              <span className="nomeUtente">Utente</span>
+            <IconButton
+              color="inherit"
+              onClick={() => {
+                sessionStorage.clear();
+                window.open("/login", "_self");
+              }}
+            >
+              <span className="nomeUtente">
+                {window.sessionStorage.getItem("user")}
+              </span>
               <HomeIcon />
               {/*<Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />

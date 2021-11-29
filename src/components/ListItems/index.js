@@ -58,7 +58,13 @@ export const mainListItems = (
 export const secondaryListItems = (
   <div>
     <ListSubheader inset> </ListSubheader>
-    <ListItem button>
+    <ListItem
+      button
+      onClick={() => {
+        sessionStorage.clear();
+        window.open("/login", "_self");
+      }}
+    >
       <ListItemIcon>
         <HomeIcon />
       </ListItemIcon>

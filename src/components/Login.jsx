@@ -16,7 +16,7 @@ class Login extends React.Component {
 
     if (window.sessionStorage.getItem("logged") === "X") {
       //window.location.href = "/login";
-      window.open("/", "_self");
+      window.open("/users", "_self");
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -67,11 +67,11 @@ class Login extends React.Component {
     this.setState({ loading: true });
     var email = this.state.email;
     var password = this.state.password;
-    if (email === "test" && password !== "test") {
+    if (email === "test" && password === "test") {
       window.sessionStorage.setItem("logged", "X");
       window.sessionStorage.setItem("user", email);
       this.setState({ check: true });
-      this.props.history.push("/");
+      this.props.history.push("/users");
       return this.state.check;
     }
     /*

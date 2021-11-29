@@ -165,7 +165,9 @@ class Dashboard extends React.Component {
                 window.open("/login", "_self");
               }}
             >
-              <span className="nomeUtente">Utente</span>
+              <span className="nomeUtente">
+                {window.sessionStorage.getItem("user")}
+              </span>
               <HomeIcon />
               {/*<Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
