@@ -166,7 +166,7 @@ class Dashboard extends React.Component {
               }}
             >
               <span className="nomeUtente">
-                {window.sessionStorage.getItem("user")}
+                {window.sessionStorage.getItem("user").split("@")[0]}
               </span>
               <HomeIcon />
               {/*<Badge badgeContent={4} color="secondary">

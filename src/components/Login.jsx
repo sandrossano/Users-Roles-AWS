@@ -36,12 +36,12 @@ class Login extends React.Component {
     var res = axios.get(link).then((result) => {
       res = result;
       try {
-        if (res.data[0] !== undefined && res.data[0].login === email) {
+        if (res.data[0] !== undefined && res.data[0].email === email) {
           window.sessionStorage.setItem("logged", "X");
           window.sessionStorage.setItem("user", email);
           this.setState({ check: true });
           this.setState({ loading: false });
-          this.props.history.push("/");
+          this.props.history.push("/users");
           return this.state.check;
         } else {
           Toast("User o Password errata", "error");

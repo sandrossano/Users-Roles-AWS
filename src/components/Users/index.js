@@ -10,10 +10,12 @@ import Input from "@material-ui/core/Input";
 import Chip from "@material-ui/core/Chip";
 import FormControl from "@material-ui/core/FormControl";
 import MenuItem from "@material-ui/core/MenuItem";
+import axios from "axios";
+
 const styles = {
   root: {
     margin: 20,
-    padding: 20
+    padding: 15
   },
   form: {
     //display: "flex"
@@ -51,18 +53,67 @@ const MenuProps = {
 const permission = ["Ruolo1", "Ruolo2", "Ruolo3", "Ruolo4"];
 
 class ManaginRoles extends Component {
-  state = {
-    roles: [
-      {
-        id: 1,
-        input: "Utente1",
-        permissionName: ["Ruolo1", "Ruolo2"],
-        isEdit: false
-      },
-      { id: 2, input: "Utente2", permissionName: ["Ruolo3"], isEdit: false }
-    ],
-    input: "",
-    permissionName: []
+  constructor(props) {
+    super(props);
+    this.state = {
+      roles: [
+        {
+          id: 1,
+          input: "Utente1",
+          permissionName: ["Ruolo1", "Ruolo2", "Ruolo3"]
+        },
+        { id: 2, input: "Utente2", permissionName: ["Ruolo3"] }
+      ],
+      input: "",
+      permissionName: [],
+      isLoaded: false
+    };
+  }
+
+  componentDidMount = () => {
+    //var email = window.sessionStorage.getItem("user");
+    var link = "https://ui8g2.sse.codesandbox.io/api/getusers";
+    axios
+      //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
+      .get(link)
+      //.then((res) => res.data.json())
+      .then(
+        (result) => {
+          var roles = [];
+          var obj;
+          //roles = result.data;
+          for (var i = 0; i < result.data.length; i++) {
+            obj = { id: 0, input: "", permissionName: [] };
+            obj.id = result.data[i].id;
+            obj.input = result.data[i].input;
+            obj.permissionName = result.data[i].permissionName;
+            var arraysplit = obj.permissionName.split(",");
+            for (var j = 0; j < arraysplit.length; j++) {
+              arraysplit[j] = arraysplit[j].replace(/['"]+/g, "");
+              arraysplit[j] = arraysplit[j].replace(/['[]+/g, "");
+              arraysplit[j] = arraysplit[j].replace(/(])+/g, "");
+            }
+            obj.permissionName = arraysplit;
+            console.log(arraysplit);
+            roles.push(obj);
+          }
+
+          this.setState({
+            isLoaded: true,
+            roles: roles
+          });
+          console.log(result.data);
+        },
+        // Nota: è importante gestire gli errori qui
+        // invece di un blocco catch() in modo da non fare passare
+        // eccezioni da bug reali nei componenti.
+        (error) => {
+          this.setState({
+            isLoaded: false,
+            error
+          });
+        }
+      );
   };
 
   handleChange = ({ target: { name, value } }) => {
@@ -92,8 +143,7 @@ class ManaginRoles extends Component {
           {
             id: idnew,
             input,
-            permissionName: permissionNameState,
-            isEdit: false
+            permissionName: permissionNameState
           }
         ],
         input: "",
@@ -122,85 +172,94 @@ class ManaginRoles extends Component {
   render() {
     const { input, roles } = this.state;
     const { classes } = this.props;
-    return (
-      <>
-        <Paper className={classes.root}>
-          <Typography variant="display1" align="center" gutterBottom>
-            Users
-          </Typography>
-          <form className={classes.form} onSubmit={this.handleCreate}>
-            <TextField
-              name="input"
-              label="New User"
-              value={input}
-              onChange={this.handleChange}
-              margin="normal"
-            />
-            <br />
-            {/*<MultipleSelect />*/}
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor="select-multiple-chip">Role</InputLabel>
-              <Select
-                multiple
-                value={this.state.permissionName}
-                onChange={this.handleChangeSelect}
-                input={<Input id="select-multiple-chip" />}
-                renderValue={(selected) => (
-                  <div className={classes.chips}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={value}
-                        className={classes.chip}
-                      />
-                    ))}
-                  </div>
-                )}
-                MenuProps={MenuProps}
-              >
-                {permission.map((name) => (
-                  <MenuItem key={name} value={name}>
-                    {name}
-                  </MenuItem>
+    const { isLoaded, items, month } = this.state;
+    if (!isLoaded) {
+      return <div>Loading...</div>;
+    } else {
+      return (
+        <>
+          <Paper className={classes.root}>
+            <Typography variant="display1" align="center" gutterBottom>
+              Users
+            </Typography>
+            <form className={classes.form} onSubmit={this.handleCreate}>
+              <TextField
+                style={{ width: "80%" }}
+                name="input"
+                label="New User"
+                value={input}
+                onChange={this.handleChange}
+                margin="normal"
+              />
+              <br />
+              {/*<MultipleSelect />*/}
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="select-multiple-chip">Role</InputLabel>
+                <Select
+                  multiple
+                  value={this.state.permissionName}
+                  onChange={this.handleChangeSelect}
+                  input={<Input id="select-multiple-chip" />}
+                  renderValue={(selected) => (
+                    <div className={classes.chips}>
+                      {selected.map((value) => (
+                        <Chip
+                          key={value}
+                          label={value}
+                          className={classes.chip}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  MenuProps={MenuProps}
+                >
+                  {permission.map((name) => (
+                    <MenuItem key={name} value={name}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <br />
+              <Button type="submit" color="primary" variant="raised">
+                Add User
+              </Button>
+            </form>
+          </Paper>
+          <Paper className={classes.root}>
+            <List>
+              {roles
+                .sort((a, b) => (a.id > b.id ? 1 : -1))
+                .map(({ id, input, permissionName }) => (
+                  <ListItem key={id}>
+                    <ListItemText
+                      primary={input}
+                      secondary={permissionName.toString()}
+                      className="secondary"
+                    />
+                    <ListItemSecondaryAction
+                      style={{ marginTop: "10px", paddingLeft: "30px" }}
+                    >
+                      <IconButton
+                        color="primary"
+                        onClick={() => this.handleEdit(id)}
+                      >
+                        <Edit />
+                      </IconButton>
+                      <IconButton
+                        color="primary"
+                        onClick={() => this.handleDelete(id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
                 ))}
-              </Select>
-            </FormControl>
-            <br />
-            <Button type="submit" color="primary" variant="raised">
-              Add User
-            </Button>
-          </form>
-        </Paper>
-        <Paper className={classes.root}>
-          <List>
-            {roles
-              .sort((a, b) => (a.id > b.id ? 1 : -1))
-              .map(({ id, input, permissionName }) => (
-                <ListItem key={id}>
-                  <ListItemText
-                    primary={input}
-                    secondary={permissionName.toString()}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      color="primary"
-                      onClick={() => this.handleEdit(id)}
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      color="primary"
-                      onClick={() => this.handleDelete(id)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-          </List>
-        </Paper>
-      </>
-    );
+            </List>
+          </Paper>
+        </>
+      );
+    }
   }
 }
 
