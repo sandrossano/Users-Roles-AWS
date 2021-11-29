@@ -10,11 +10,13 @@ import Input from "@material-ui/core/Input";
 import Chip from "@material-ui/core/Chip";
 import FormControl from "@material-ui/core/FormControl";
 import MenuItem from "@material-ui/core/MenuItem";
-import MultipleSelect from "./MultipleSelect";
+import axios from "axios";
+import Toast from "toast-me";
+
 const styles = {
   root: {
     margin: 20,
-    padding: 20
+    padding: 15
   },
   form: {
     //display: "flex"
@@ -49,23 +51,95 @@ const MenuProps = {
   }
 };
 
-const permission = ["App1", "App2", "App3", "App4", "App5"];
+//const permission = ["App1", "App2", "App3", "App4", "App5"];
 
 class ManaginRoles extends Component {
-  state = {
-    roles: [
-      {
-        id: 1,
-        input: "Super Admin",
-        permissionName: ["App1", "App2"],
-        isEdit: false
-      },
-      { id: 2, input: "Admin", permissionName: ["App3"], isEdit: false }
-    ],
-    input: "",
-    permissionName: []
+  constructor(props) {
+    super(props);
+    this.state = {
+      lista: [],
+      roles: [],
+      input: "",
+      id: "",
+      permissionName: [],
+      isLoaded: false,
+      isEdit: false,
+      max: 0
+    };
+  }
+
+  componentDidMount = () => {
+    var linkapp = "https://keytech-demo-backend.herokuapp.com/api/getapplist";
+    axios
+      //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
+      .get(linkapp)
+      //.then((res) => res.data.json())
+      .then((result) => {
+        this.setState({
+          lista: result.data
+        });
+        console.log(result.data);
+      });
+
+    //var email = window.sessionStorage.getItem("user");
+    var link = "https://keytech-demo-backend.herokuapp.com/api/getroles";
+    axios
+      //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
+      .get(link)
+      //.then((res) => res.data.json())
+      .then(
+        (result) => {
+          var roles = [];
+          var obj;
+          var max = 0;
+          //roles = result.data;
+          for (var i = 0; i < result.data.length; i++) {
+            obj = { id: 0, input: "", permissionName: [] };
+            obj.id = result.data[i].id;
+            obj.input = result.data[i].input;
+            obj.permissionName = result.data[i].permissionName;
+            var arraysplit = obj.permissionName.split(",");
+            for (var j = 0; j < arraysplit.length; j++) {
+              arraysplit[j] = arraysplit[j].replace(/['"]+/g, "").trim();
+              arraysplit[j] = arraysplit[j].replace(/['[]+/g, "").trim();
+              arraysplit[j] = arraysplit[j].replace(/(])+/g, "").trim();
+            }
+            obj.permissionName = arraysplit;
+            console.log(arraysplit);
+            roles.push(obj);
+            if (obj.id > max) max = obj.id;
+          }
+
+          this.setState({
+            isLoaded: true,
+            roles: roles,
+            isEdit: false,
+            max: max
+          });
+          console.log(result.data);
+        },
+        // Nota: è importante gestire gli errori qui
+        // invece di un blocco catch() in modo da non fare passare
+        // eccezioni da bug reali nei componenti.
+        (error) => {
+          this.setState({
+            isLoaded: false,
+            error,
+            isEdit: false
+          });
+        }
+      );
   };
 
+  handleCancel = () => {
+    this.setState({
+      input: "",
+      id: "",
+      permissionName: [],
+      isEdit: false,
+      max: 0
+    });
+  };
   handleChange = ({ target: { name, value } }) => {
     this.setState({
       [name]: value
@@ -74,39 +148,72 @@ class ManaginRoles extends Component {
 
   handleCreate = (e) => {
     var idnew = "";
-    var roles = this.state.roles.filter(
-      (item) => item.input === this.state.input
-    );
+    var roles = this.state.roles.filter((item) => item.id === this.state.id);
     if (roles[0] !== undefined) {
       idnew = roles[0].id;
-      this.handleDelete(roles[0].id);
+      this.setState(({ roles }) => ({
+        roles: roles.filter((item) => item.id !== idnew),
+        isEdit: false
+      }));
     } else {
-      idnew = Date.now().toString();
+      idnew = parseInt(this.state.max, 10) + 1;
     }
-    e.preventDefault();
+
     var permissionNameState = this.state.permissionName;
-    if (this.state.input) {
-      //console.log(this.state);
+    console.log(permissionNameState.toString());
+    if (this.state.input !== "") {
+      var link =
+        "https://keytech-demo-backend.herokuapp.com/api/createrole/" +
+        idnew +
+        "~" +
+        this.state.input +
+        "~" +
+        permissionNameState.toString(); //Barella23
+      if (roles[0] !== undefined) {
+        link =
+          "https://keytech-demo-backend.herokuapp.com/api/editrole/" +
+          idnew +
+          "~" +
+          this.state.input +
+          "~" +
+          permissionNameState.toString();
+      }
+      console.log(link);
+      axios
+        //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
+        .get(link)
+        .then((result) => {});
       this.setState(({ roles, input }) => ({
         roles: [
           ...roles,
           {
             id: idnew,
             input,
-            permissionName: permissionNameState,
-            isEdit: false
+            permissionName: permissionNameState
           }
         ],
         input: "",
-        permissionName: []
+        permissionName: [],
+        isEdit: false
       }));
+    } else {
+      Toast("User o Password assenti", "error");
     }
+    e.preventDefault();
   };
 
   handleDelete = (id) => {
-    this.setState(({ roles }) => ({
-      roles: roles.filter((item) => item.id !== id)
-    }));
+    var link =
+      "https://keytech-demo-backend.herokuapp.com/api/deleterole/" + id;
+    axios
+      //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
+      .get(link)
+      .then((result) => {
+        this.setState(({ roles }) => ({
+          roles: roles.filter((item) => item.id !== id),
+          isEdit: false
+        }));
+      });
   };
 
   handleEdit = (id) => {
@@ -114,95 +221,118 @@ class ManaginRoles extends Component {
     console.log(roles);
     this.setState(({ permissionName }) => ({
       input: roles[0].input,
-      permissionName: roles[0].permissionName
+      permissionName: roles[0].permissionName,
+      isEdit: true,
+      id: roles[0].id
     }));
   };
   handleChangeSelect = (event) => {
     this.setState({ permissionName: event.target.value });
   };
   render() {
-    const { input, roles } = this.state;
+    const { input, roles, psw, lista } = this.state;
     const { classes } = this.props;
-    return (
-      <>
-        <Paper className={classes.root}>
-          <Typography variant="display1" align="center" gutterBottom>
-            Roles
-          </Typography>
-          <form className={classes.form} onSubmit={this.handleCreate}>
-            <TextField
-              name="input"
-              label="New role"
-              value={input}
-              onChange={this.handleChange}
-              margin="normal"
-            />
-            <br />
-            {/*<MultipleSelect />*/}
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor="select-multiple-chip">App Name</InputLabel>
-              <Select
-                multiple
-                value={this.state.permissionName}
-                onChange={this.handleChangeSelect}
-                input={<Input id="select-multiple-chip" />}
-                renderValue={(selected) => (
-                  <div className={classes.chips}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={value}
-                        className={classes.chip}
-                      />
-                    ))}
-                  </div>
-                )}
-                MenuProps={MenuProps}
-              >
-                {permission.map((name) => (
-                  <MenuItem key={name} value={name}>
-                    {name}
-                  </MenuItem>
+    const { isLoaded, items, isEdit } = this.state;
+    if (!isLoaded) {
+      return <div>Loading...</div>;
+    } else {
+      return (
+        <>
+          <Paper className={classes.root}>
+            <Typography variant="display1" align="center" gutterBottom>
+              Roles
+            </Typography>
+            <form className={classes.form} onSubmit={this.handleCreate}>
+              <TextField
+                style={{ width: "60%" }}
+                name="input"
+                label="New Role"
+                value={input}
+                onChange={this.handleChange}
+                margin="normal"
+              />
+              <br />
+              {/*<MultipleSelect />*/}
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="select-multiple-chip">App Name</InputLabel>
+                <Select
+                  multiple
+                  value={this.state.permissionName}
+                  onChange={this.handleChangeSelect}
+                  input={<Input id="select-multiple-chip" />}
+                  renderValue={(selected) => (
+                    <div className={classes.chips}>
+                      {selected.map((value) => (
+                        <Chip
+                          key={value}
+                          label={value}
+                          className={classes.chip}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  MenuProps={MenuProps}
+                >
+                  {lista.map(({ name }) => (
+                    <MenuItem key={name} value={name}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <br />
+              {isEdit ? (
+                <Button
+                  color="primary"
+                  variant="raised"
+                  style={{ marginRight: "25px" }}
+                  onClick={() => this.handleCancel()}
+                >
+                  Cancel
+                </Button>
+              ) : (
+                ""
+              )}
+              <Button type="submit" color="primary" variant="raised">
+                {isEdit ? "Edit Role" : "Add Role"}
+              </Button>
+            </form>
+          </Paper>
+          <Paper className={classes.root}>
+            <List>
+              {roles
+                .sort((a, b) => (a.id > b.id ? 1 : -1))
+                .map(({ id, input, permissionName }) => (
+                  <ListItem key={id}>
+                    <ListItemText
+                      primary={input}
+                      secondary={permissionName.toString()}
+                      className="secondary"
+                    />
+                    <ListItemSecondaryAction
+                      style={{ marginTop: "10px", paddingLeft: "30px" }}
+                    >
+                      <IconButton
+                        color="primary"
+                        onClick={() => this.handleEdit(id)}
+                      >
+                        <Edit />
+                      </IconButton>
+                      <IconButton
+                        color="primary"
+                        onClick={() => this.handleDelete(id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
                 ))}
-              </Select>
-            </FormControl>
-            <br />
-            <Button type="submit" color="primary" variant="raised">
-              Add Role
-            </Button>
-          </form>
-        </Paper>
-        <Paper className={classes.root}>
-          <List>
-            {roles
-              .sort((a, b) => (a.id > b.id ? 1 : -1))
-              .map(({ id, input, permissionName }) => (
-                <ListItem key={id}>
-                  <ListItemText
-                    primary={input}
-                    secondary={permissionName.toString()}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      color="primary"
-                      onClick={() => this.handleEdit(id)}
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      color="primary"
-                      onClick={() => this.handleDelete(id)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-          </List>
-        </Paper>
-      </>
-    );
+            </List>
+          </Paper>
+        </>
+      );
+    }
   }
 }
-
 export default withStyles(styles)(ManaginRoles);

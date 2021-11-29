@@ -11,6 +11,8 @@ import Chip from "@material-ui/core/Chip";
 import FormControl from "@material-ui/core/FormControl";
 import MenuItem from "@material-ui/core/MenuItem";
 import axios from "axios";
+import Toast from "toast-me";
+const crypto = require("crypto");
 
 const styles = {
   root: {
@@ -50,29 +52,40 @@ const MenuProps = {
   }
 };
 
-const permission = ["Ruolo1", "Ruolo2", "Ruolo3", "Ruolo4"];
+//var permission = ["Ruolo1", "Ruolo2", "Ruolo3"];
 
 class ManaginRoles extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      roles: [
-        {
-          id: 1,
-          input: "Utente1",
-          permissionName: ["Ruolo1", "Ruolo2", "Ruolo3"]
-        },
-        { id: 2, input: "Utente2", permissionName: ["Ruolo3"] }
-      ],
+      lista: [],
+      roles: [],
       input: "",
+      psw: "",
+      id: "",
       permissionName: [],
-      isLoaded: false
+      isLoaded: false,
+      isEdit: false,
+      max: 0
     };
   }
 
   componentDidMount = () => {
+    var linkroles =
+      "https://keytech-demo-backend.herokuapp.com/api/getroleslist";
+    axios
+      //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
+      .get(linkroles)
+      //.then((res) => res.data.json())
+      .then((result) => {
+        this.setState({
+          lista: result.data
+        });
+        console.log(result.data);
+      });
+
     //var email = window.sessionStorage.getItem("user");
-    var link = "https://ui8g2.sse.codesandbox.io/api/getusers";
+    var link = "https://keytech-demo-backend.herokuapp.com/api/getusers";
     axios
       //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
       .get(link)
@@ -81,26 +94,31 @@ class ManaginRoles extends Component {
         (result) => {
           var roles = [];
           var obj;
+          var max = 0;
           //roles = result.data;
           for (var i = 0; i < result.data.length; i++) {
             obj = { id: 0, input: "", permissionName: [] };
             obj.id = result.data[i].id;
             obj.input = result.data[i].input;
+            obj.psw = result.data[i].psw;
             obj.permissionName = result.data[i].permissionName;
             var arraysplit = obj.permissionName.split(",");
             for (var j = 0; j < arraysplit.length; j++) {
-              arraysplit[j] = arraysplit[j].replace(/['"]+/g, "");
-              arraysplit[j] = arraysplit[j].replace(/['[]+/g, "");
-              arraysplit[j] = arraysplit[j].replace(/(])+/g, "");
+              arraysplit[j] = arraysplit[j].replace(/['"]+/g, "").trim();
+              arraysplit[j] = arraysplit[j].replace(/['[]+/g, "").trim();
+              arraysplit[j] = arraysplit[j].replace(/(])+/g, "").trim();
             }
             obj.permissionName = arraysplit;
             console.log(arraysplit);
             roles.push(obj);
+            if (obj.id > max) max = obj.id;
           }
 
           this.setState({
             isLoaded: true,
-            roles: roles
+            roles: roles,
+            isEdit: false,
+            max: max
           });
           console.log(result.data);
         },
@@ -110,33 +128,76 @@ class ManaginRoles extends Component {
         (error) => {
           this.setState({
             isLoaded: false,
-            error
+            error,
+            isEdit: false
           });
         }
       );
   };
 
+  handleCancel = () => {
+    this.setState({
+      input: "",
+      psw: "",
+      id: "",
+      permissionName: [],
+      isEdit: false,
+      max: 0
+    });
+  };
   handleChange = ({ target: { name, value } }) => {
+    this.setState({
+      [name]: value
+    });
+  };
+  handleChangePsw = ({ target: { name, value } }) => {
     this.setState({
       [name]: value
     });
   };
 
   handleCreate = (e) => {
-    var idnew = "";
-    var roles = this.state.roles.filter(
-      (item) => item.input === this.state.input
-    );
+    var idnew = 0;
+    var password = "";
+    var roles = this.state.roles.filter((item) => item.id === this.state.id);
     if (roles[0] !== undefined) {
       idnew = roles[0].id;
-      this.handleDelete(roles[0].id);
+      this.setState(({ roles }) => ({
+        roles: roles.filter((item) => item.id !== idnew),
+        isEdit: false
+      }));
+      password = this.state.psw;
     } else {
-      idnew = Date.now().toString();
+      idnew = parseInt(this.state.max, 10) + 1;
+      password = crypto.createHash("md5").update(this.state.psw).digest("hex");
     }
-    e.preventDefault();
+
     var permissionNameState = this.state.permissionName;
-    if (this.state.input) {
-      //console.log(this.state);
+    if (this.state.input !== "" && this.state.psw !== "") {
+      var link =
+        "https://keytech-demo-backend.herokuapp.com/api/createuser/" +
+        idnew +
+        "~" +
+        this.state.input +
+        "~" +
+        password +
+        "~" +
+        permissionNameState.toString(); //Barella23
+      if (roles[0] !== undefined) {
+        link =
+          "https://keytech-demo-backend.herokuapp.com/api/edituser/" +
+          idnew +
+          "~" +
+          this.state.input +
+          "~" +
+          password +
+          "~" +
+          permissionNameState.toString();
+      }
+      axios
+        //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
+        .get(link)
+        .then((result) => {});
       this.setState(({ roles, input }) => ({
         roles: [
           ...roles,
@@ -147,15 +208,28 @@ class ManaginRoles extends Component {
           }
         ],
         input: "",
-        permissionName: []
+        psw: "",
+        permissionName: [],
+        isEdit: false
       }));
+    } else {
+      Toast("User o Password assenti", "error");
     }
+    e.preventDefault();
   };
 
   handleDelete = (id) => {
-    this.setState(({ roles }) => ({
-      roles: roles.filter((item) => item.id !== id)
-    }));
+    var link =
+      "https://keytech-demo-backend.herokuapp.com/api/deleteuser/" + id;
+    axios
+      //.get("https://jsonplaceholder.typicode.com/todos?_page=1&_limit=10")
+      .get(link)
+      .then((result) => {
+        this.setState(({ roles }) => ({
+          roles: roles.filter((item) => item.id !== id),
+          isEdit: false
+        }));
+      });
   };
 
   handleEdit = (id) => {
@@ -163,16 +237,21 @@ class ManaginRoles extends Component {
     console.log(roles);
     this.setState(({ permissionName }) => ({
       input: roles[0].input,
-      permissionName: roles[0].permissionName
+      psw: roles[0].psw,
+      permissionName: roles[0].permissionName,
+      isEdit: true,
+      id: roles[0].id
     }));
   };
   handleChangeSelect = (event) => {
+    console.log(event.target.value);
+    console.log(this.state.permissionName);
     this.setState({ permissionName: event.target.value });
   };
   render() {
-    const { input, roles } = this.state;
+    const { input, roles, psw, lista } = this.state;
     const { classes } = this.props;
-    const { isLoaded, items, month } = this.state;
+    const { isLoaded, items, isEdit } = this.state;
     if (!isLoaded) {
       return <div>Loading...</div>;
     } else {
@@ -184,13 +263,38 @@ class ManaginRoles extends Component {
             </Typography>
             <form className={classes.form} onSubmit={this.handleCreate}>
               <TextField
-                style={{ width: "80%" }}
+                style={{ width: "60%" }}
                 name="input"
                 label="New User"
                 value={input}
                 onChange={this.handleChange}
                 margin="normal"
               />
+              {isEdit ? (
+                <TextField
+                  style={{ width: "60%", display: "none" }}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                  name="psw"
+                  label="Password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={psw}
+                  onChange={this.handleChangePsw}
+                />
+              ) : (
+                <TextField
+                  style={{ width: "60%" }}
+                  name="psw"
+                  label="Password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={psw}
+                  onChange={this.handleChangePsw}
+                />
+              )}
+
               <br />
               {/*<MultipleSelect />*/}
               <FormControl className={classes.formControl}>
@@ -213,7 +317,7 @@ class ManaginRoles extends Component {
                   )}
                   MenuProps={MenuProps}
                 >
-                  {permission.map((name) => (
+                  {lista.map(({ name }) => (
                     <MenuItem key={name} value={name}>
                       {name}
                     </MenuItem>
@@ -221,8 +325,20 @@ class ManaginRoles extends Component {
                 </Select>
               </FormControl>
               <br />
+              {isEdit ? (
+                <Button
+                  color="primary"
+                  variant="raised"
+                  style={{ marginRight: "25px" }}
+                  onClick={() => this.handleCancel()}
+                >
+                  Cancel
+                </Button>
+              ) : (
+                ""
+              )}
               <Button type="submit" color="primary" variant="raised">
-                Add User
+                {isEdit ? "Edit User" : "Add User"}
               </Button>
             </form>
           </Paper>

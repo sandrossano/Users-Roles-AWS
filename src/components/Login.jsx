@@ -74,10 +74,7 @@ class Login extends React.Component {
       this.props.history.push("/users");
       return this.state.check;
     }
-    /*
-      var res = axios.get(link).then((result) => {
-      res = result;
-    }); */
+    event.preventDefault();
     var res = this.getLogin();
     return false;
     /*
