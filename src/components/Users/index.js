@@ -171,7 +171,7 @@ class ManaginRoles extends Component {
       idnew = parseInt(this.state.max, 10) + 1;
       password = crypto.createHash("md5").update(this.state.psw).digest("hex");
     }
-
+    console.log(password);
     var permissionNameState = this.state.permissionName;
     if (this.state.input !== "" && this.state.psw !== "") {
       var link =
@@ -204,7 +204,8 @@ class ManaginRoles extends Component {
           {
             id: idnew,
             input,
-            permissionName: permissionNameState
+            permissionName: permissionNameState,
+            psw: password
           }
         ],
         input: "",
