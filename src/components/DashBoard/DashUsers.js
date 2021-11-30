@@ -18,8 +18,7 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 import { mainListItems, secondaryListItems } from "../ListItems";
 import ManaginRoles from "../../components/ManaginRoles";
 import Users from "../../components/Users";
-//import SimpleLineChart from "./SimpleLineChart";
-//import SimpleTable from "./SimpleTable";
+const crypto = require("crypto");
 
 const drawerWidth = 240;
 
@@ -162,7 +161,18 @@ class Dashboard extends React.Component {
               color="inherit"
               onClick={() => {
                 sessionStorage.clear();
-                window.open("/login", "_self");
+                //window.open("/login", "_self");
+                var d = new Date();
+                var link =
+                  "https://demodash.awskeytech.com/?US=" +
+                  window.sessionStorage.getItem("user") +
+                  "&TK=" +
+                  crypto
+                    .createHash("md5")
+                    .update(d.getHours() + d.getMinutes() + "")
+                    .digest("hex")
+                    .toString();
+                window.open(link, "_self");
               }}
             >
               <span className="nomeUtente">

@@ -12,6 +12,7 @@ import HomeIcon from "@material-ui/icons/Home";
 import LayersIcon from "@material-ui/icons/Layers";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import { Link } from "react-router-dom";
+const crypto = require("crypto");
 
 export const mainListItems = (
   <div>
@@ -62,7 +63,18 @@ export const secondaryListItems = (
       button
       onClick={() => {
         sessionStorage.clear();
-        window.open("/login", "_self");
+        // window.open("/login", "_self");
+        var d = new Date();
+        var link =
+          "https://demodash.awskeytech.com/?US=" +
+          window.sessionStorage.getItem("user") +
+          "&TK=" +
+          crypto
+            .createHash("md5")
+            .update(d.getHours() + d.getMinutes() + "")
+            .digest("hex")
+            .toString();
+        window.open(link, "_self");
       }}
     >
       <ListItemIcon>
