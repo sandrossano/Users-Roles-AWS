@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Toast from "toast-me";
 import Button from "react-bootstrap-button-loader";
+const crypto = require("crypto");
 
 class Login extends React.Component {
   constructor(props) {
@@ -16,6 +17,28 @@ class Login extends React.Component {
 
     if (window.sessionStorage.getItem("logged") === "X") {
       //window.location.href = "/login";
+      window.open("/users", "_self");
+    }
+
+    var logged = sessionStorage.getItem("logged");
+    var d = new Date();
+    var url = new URL(window.location.href);
+    var sParam = url.searchParams.get("US");
+    var sParam2 = url.searchParams.get("TK");
+    var passhash = crypto
+      .createHash("md5")
+      .update(d.getHours() + d.getMinutes() + "")
+      .digest("hex")
+      .toString();
+    if (passhash === sParam2) {
+      logged = "X";
+      sessionStorage.setItem("logged", logged);
+      sessionStorage.setItem("user", sParam);
+    } else {
+      logged = "";
+    }
+    if (logged === "X") {
+      //decommentare al rilascio
       window.open("/users", "_self");
     }
 
