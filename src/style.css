@@ -273,3 +273,7 @@ html {
 .dx-toolbar .dx-toolbar-items-container {
   height: 50px !important;
 }
+header {
+  color: #fff;
+  background-color: rgb(97, 96, 96) !important;
+}

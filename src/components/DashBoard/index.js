@@ -129,6 +129,7 @@ class Dashboard extends React.Component {
         <CssBaseline />
         <AppBar
           position="absolute"
+          id="AppBar"
           className={classNames(
             classes.appBar,
             this.state.open && classes.appBarShift
