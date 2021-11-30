@@ -161,8 +161,19 @@ class Dashboard extends React.Component {
             <IconButton
               color="inherit"
               onClick={() => {
-                sessionStorage.clear();
-                window.open("/login", "_self");
+                //sessionStorage.clear();
+                //window.open("/login", "_self");
+                var d = new Date();
+                var link =
+                  "https://demodash.awskeytech.com/?US=" +
+                  window.sessionStorage.getItem("user") +
+                  "&TK=" +
+                  crypto
+                    .createHash("md5")
+                    .update(d.getHours() + d.getMinutes() + "")
+                    .digest("hex")
+                    .toString();
+                window.open(link, "_self");
               }}
             >
               <span className="nomeUtente">

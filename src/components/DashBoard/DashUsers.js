@@ -160,7 +160,7 @@ class Dashboard extends React.Component {
             <IconButton
               color="inherit"
               onClick={() => {
-                sessionStorage.clear();
+                //sessionStorage.clear();
                 //window.open("/login", "_self");
                 var d = new Date();
                 var link =

@@ -62,7 +62,7 @@ export const secondaryListItems = (
     <ListItem
       button
       onClick={() => {
-        sessionStorage.clear();
+        //sessionStorage.clear();
         // window.open("/login", "_self");
         var d = new Date();
         var link =
